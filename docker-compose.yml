@@ -1,0 +1,48 @@
+services:
+
+  db:
+    image: postgis/postgis:15-3.3
+    container_name: tax_db
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./geo_data:/geo_data
+
+
+  redis:
+    image: redis:7-alpine
+    container_name: tax_redis
+    ports:
+      - "6379:6379"
+
+
+  api_gateway:
+    build: ./api_gateway_python
+    container_name: tax_api
+    depends_on:
+      - db
+      - redis
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    ports:
+      - "8000:8000"
+
+
+  worker:
+    build: ./tax_worker_go
+    container_name: tax_worker
+    depends_on:
+      - db
+      - redis
+    environment:
+        - DATABASE_URL=${DATABASE_URL}
+        - REDIS_URL=${REDIS_ADDR}
+
+volumes:
+  pgdata:
