@@ -2,8 +2,8 @@ import axios from 'axios';
 import type { Order, OrderInput } from '../interfaces/order';
 
 const apiClient = axios.create({
-    // URL for future back-end
-    baseURL: 'http://0.0.0.0:8000/',
+    // Обов'язково додаємо протокол http://
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
     headers: {
         'Content-Type': 'application/json',
     },
