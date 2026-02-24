@@ -13,6 +13,9 @@ const apiClient = axios.create({
 export interface FetchOrdersParams {
     page?: number;
     limit?: number;
+    search?: string;
+    sort_by?: string;
+    sort_order?: 'asc' | 'desc';
 }
 
 export const ordersService = {
