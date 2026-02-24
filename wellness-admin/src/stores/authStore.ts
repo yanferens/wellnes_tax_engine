@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
+import { authService } from '../api/orders';
 
 export const useAuthStore = defineStore('auth', () => {
     const router = useRouter();
@@ -20,25 +21,20 @@ export const useAuthStore = defineStore('auth', () => {
         errorMessage.value = null;
 
         try {
-            // THERE WILL BE A REQUEST FOR THE BACKEND
-            // const response = await axios.post('/api/login', { email, password });
+            const data = await authService.login(email, password);
+            const accessToken = data.access_token;
+            token.value = accessToken;
+            userEmail.value = email;
+            localStorage.setItem('auth_token', accessToken);
+            localStorage.setItem('user_email', email);
 
-            // REQUEST SIMULATION:
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            if (password === '12345678') {
-                const fakeToken = 'bearer-token-xyz';
-                token.value = fakeToken;
-                userEmail.value = email;
-                localStorage.setItem('auth_token', fakeToken);
-                localStorage.setItem('user_email', email);
-                return true;
-            } else {
-                throw new Error('Невірний логін або пароль');
-            }
-
+            return true;
         } catch (error: any) {
-            errorMessage.value = error.message || 'Помилка входу';
+            if (error.response && error.response.status === 401) {
+                errorMessage.value = 'Невірний логін або пароль';
+            } else {
+                errorMessage.value = 'Помилка з\'єднання з сервером';
+            }
             return false;
         } finally {
             isLoading.value = false;

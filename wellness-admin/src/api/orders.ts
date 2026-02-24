@@ -1,13 +1,39 @@
-import axios from 'axios';
+import axios, { type InternalAxiosRequestConfig } from 'axios';
 import type { Order, OrderInput } from '../interfaces/order';
 
 const apiClient = axios.create({
-    // Обов'язково додаємо протокол http://
     baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000',
     headers: {
         'Content-Type': 'application/json',
     },
 });
+
+// INTERCEPTOR
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+        if (!config.headers) {
+            // @ts-ignore
+            config.headers = {};
+        }
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
+
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_email');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
 
 // Interface for GET request parameters (pagination and filters)
 export interface FetchOrdersParams {
@@ -17,6 +43,14 @@ export interface FetchOrdersParams {
     sort_by?: string;
     sort_order?: 'asc' | 'desc';
 }
+
+export const authService = {
+    async login(email: string, password: string): Promise<{ access_token: string }> {
+        // Тут шлях залежить від бекенду.
+        const response = await apiClient.post('/auth/login', { email, password });
+        return response.data;
+    }
+};
 
 export const ordersService = {
     /**
