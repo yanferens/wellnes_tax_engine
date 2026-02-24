@@ -14,10 +14,18 @@ type RedisQueue struct {
 }
 
 func NewRedisQueue(redisURL string) *RedisQueue {
-	return &RedisQueue{
-		client: redis.NewClient(&redis.Options{
+
+	opt, err := redis.ParseURL(redisURL)
+	if err != nil {
+
+		log.Printf("Попередження: %s не є валідним URL, пробуємо як пряму адресу", redisURL)
+		opt = &redis.Options{
 			Addr: redisURL,
-		}),
+		}
+	}
+
+	return &RedisQueue{
+		client: redis.NewClient(opt),
 	}
 }
 
