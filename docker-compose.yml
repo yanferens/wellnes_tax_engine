@@ -1,5 +1,12 @@
 services:
-
+  frontend:
+    build:
+      context: ./wellness-admin
+    container_name: tax_frontend
+    ports:
+      - "5173:80"
+    depends_on:
+      - api_gateway
   db:
     image: postgis/postgis:15-3.3
     container_name: tax_db

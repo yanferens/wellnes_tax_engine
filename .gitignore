@@ -16,8 +16,6 @@ dist/
 
 
 bin/
-worker
-tax_worker
 
 *.out
 *.test
