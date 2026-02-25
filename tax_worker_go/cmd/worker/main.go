@@ -10,6 +10,7 @@ import (
 	"syscall"
 	"tax_worker/internal/config"
 	"tax_worker/internal/db"
+	"tax_worker/internal/models"
 	"tax_worker/internal/queue"
 	"tax_worker/internal/tax"
 	"time"
@@ -35,10 +36,9 @@ func main() {
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	const numWorkers = 20
+	const numWorkers = 100
 	var wg sync.WaitGroup
 
-	// Ці змінні мають бути доступні всім горутинам
 	var processedCount int64
 	var batchStartTime time.Time
 	var isProcessing int32
@@ -46,7 +46,39 @@ func main() {
 
 	totalToProcess := int64(11222)
 
+	resultsChan := make(chan models.ProcessedOrder, 2000)
+
 	log.Printf("🚀 Tax Worker started with %d workers. Ready for parallel processing...", numWorkers)
+
+	go func() {
+		var batch []models.ProcessedOrder
+		batchSize := 1000
+		ticker := time.NewTicker(1 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case res := <-resultsChan:
+				batch = append(batch, res)
+				if len(batch) >= batchSize {
+
+					if err := database.SaveOrdersBatch(context.Background(), batch); err != nil {
+						log.Printf("Batch save error: %v", err)
+					}
+					batch = batch[:0]
+				}
+			case <-ticker.C:
+				if len(batch) > 0 {
+					if err := database.SaveOrdersBatch(context.Background(), batch); err != nil {
+						log.Printf("Batch save error: %v", err)
+					}
+					batch = batch[:0]
+				}
+			case <-ctx.Done():
+				return
+			}
+		}
+	}()
 
 	for i := 0; i < numWorkers; i++ {
 		wg.Add(1)
@@ -76,15 +108,12 @@ func main() {
 				result.Timestamp = order.Timestamp
 				result.Jurisdictions = jurisdictions
 
-				if err := database.SaveOrder(ctx, result); err != nil {
-					log.Printf("[Worker %d] Save error: %v", workerID, err)
-					continue
-				}
+				// 3. Замість збереження по одному, відправляємо в канал
+				resultsChan <- result
 
 				newCount := atomic.AddInt64(&processedCount, 1)
 
-				// Логування прогресу
-				if newCount%500 == 0 || newCount == totalToProcess {
+				if newCount%1000 == 0 || newCount == totalToProcess {
 					mu.Lock()
 					duration := time.Since(batchStartTime)
 					mu.Unlock()
@@ -96,13 +125,11 @@ func main() {
 					)
 				}
 
-				// Фінал пачки
 				if newCount == totalToProcess {
 					mu.Lock()
 					finalDuration := time.Since(batchStartTime)
 					mu.Unlock()
 					log.Printf("✨ ФІНАЛ: Оброблено %d рядків за %v!", newCount, finalDuration)
-
 					atomic.StoreInt32(&isProcessing, 0)
 				}
 			}
