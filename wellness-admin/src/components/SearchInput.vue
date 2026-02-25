@@ -17,7 +17,7 @@ const onInput = () => {
 <template>
   <div class="search_input_wrap">
     <img src="../assets/search.svg" alt="search" class="search_img" v-show="searchQuery === ''"/>
-    <input v-model="searchQuery" @input="onInput" type="text" placeholder="Знайти за ID,  широтою, довготою">
+    <input v-model="searchQuery" @input="onInput" type="text" placeholder="Знайти за ID, широтою, довготою">
   </div>
 </template>
 
