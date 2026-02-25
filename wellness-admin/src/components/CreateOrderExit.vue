@@ -1,18 +1,24 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import OrderForm from '@/components/OrderForm.vue';
+import { useAuthStore } from '@/stores/authStore';
 
+const authStore = useAuthStore();
 const isModalOpen = ref(false);
 
 const openForm = () => {
   isModalOpen.value = true;
+};
+
+const handleLogout = () => {
+  authStore.logout();
 };
 </script>
 
 <template>
   <div class="create_order_wrap">
     <button class="create_order_btn" type="button" @click="openForm">+ Створити вручну</button>
-    <a href="" class="exit_btn"><img src="../assets/exit.png" alt="exit"></a>
+    <a href="" class="exit_btn" @click.prevent="handleLogout"><img src="../assets/exit.png" alt="exit"></a>
     <OrderForm
         :is-open="isModalOpen"
         @close="isModalOpen = false"

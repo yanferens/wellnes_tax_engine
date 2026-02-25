@@ -1,10 +1,5 @@
 <script setup lang="ts">
-// defineProps({
-//   image: {
-//     type: String,
-//     required: true
-//   },
-// })
+
 </script>
 
 <template>

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { useOrdersStore } from '@/stores/ordersStore';
-const inputValue = ref('');
 
 const store = useOrdersStore();
 const searchQuery = ref('');

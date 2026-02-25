@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 
+const MAX_FILE_SIZE_MB = 50;
+const MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024;
+
 const emit = defineEmits<{
   (e: 'file-selected', file: File): void
   (e: 'error', message: string): void
@@ -13,39 +16,46 @@ const triggerInput = () => {
   fileInput.value?.click();
 };
 
+const validateAndEmit = (file: File) => {
+  if (!file) return;
+
+  const isCsv = file.type === 'text/csv' || file.type === 'application/vnd.ms-excel' || file.name.endsWith('.csv');
+
+  if (!isCsv) {
+    emit('error', 'Please upload a file in .csv format.');
+    return;
+  }
+  if (file.size > MAX_FILE_SIZE_BYTES) {
+    emit('error', `File too large (max. ${MAX_FILE_SIZE_MB} MB)`);
+    return;
+  }
+  emit('file-selected', file);
+};
+
 const onFileChanged = (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    validateAndEmit(target.files[0]);
+    validateAndEmit(target.files[0]!);
   }
 };
 
-const onDragOver = (e: DragEvent) => {
+const onDragOver = () => {
   isDragging.value = true;
 };
 
-const onDragLeave = (e: DragEvent) => {
+const onDragLeave = () => {
   isDragging.value = false;
 };
 
 const onDrop = (e: DragEvent) => {
   isDragging.value = false;
-  if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-    validateAndEmit(e.dataTransfer.files[0]);
+  const files = e.dataTransfer?.files;
+  if (files && files.length > 0) {
+    const file = files[0];
+    if (file) {
+      validateAndEmit(file);
+    }
   }
-};
-
-const validateAndEmit = (file: File) => {
-  const isCsv = file.type === 'text/csv' || file.type === 'application/vnd.ms-excel' || file.name.endsWith('.csv');
-  if (!isCsv) {
-    emit('error', 'Please upload a file in .csv format.');
-    return;
-  }
-  if (file.size > 50 * 1024 * 1024) {
-    emit('error', 'File too large (max. 50 MB)');
-    return;
-  }
-  emit('file-selected', file);
 };
 </script>
 
@@ -59,7 +69,7 @@ const validateAndEmit = (file: File) => {
     </div>
 
     <p class="main-text">Натисніть, або перетягніть сюди.</p>
-    <p class="sub-text">Лише CSV (макс. 50 МБ)</p>
+    <p class="sub-text">Лише CSV (макс. {{MAX_FILE_SIZE_MB}} МБ)</p>
   </div>
 </template>
 

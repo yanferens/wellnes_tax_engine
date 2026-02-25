@@ -27,16 +27,13 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to, from, next) => {
+router.beforeEach((to) => {
   const isAuthenticated = localStorage.getItem('auth_token');
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next({ name: 'login' });
+    return { name: 'login' };
   }
-  else if (to.meta.guestOnly && isAuthenticated) {
-    next({ name: 'orders' });
-  }
-  else {
-    next();
+  if (to.meta.guestOnly && isAuthenticated) {
+    return { name: 'orders' };
   }
 });
 
