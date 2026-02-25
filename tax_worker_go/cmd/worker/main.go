@@ -108,7 +108,6 @@ func main() {
 				result.Timestamp = order.Timestamp
 				result.Jurisdictions = jurisdictions
 
-				// 3. Замість збереження по одному, відправляємо в канал
 				resultsChan <- result
 
 				newCount := atomic.AddInt64(&processedCount, 1)
