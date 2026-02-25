@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import pandas as pd
-from sqlalchemy import text, desc, asc
+from sqlalchemy import text, desc, asc, or_, cast, String
 import io
 import uuid
 from . import models, schemas, services, database, auth
@@ -82,6 +82,7 @@ def list_orders(
     limit: int = 50, 
     sort_by: str = "timestamp",
     sort_order: str = "desc",
+    search: str = None,
     db: Session = Depends(database.get_db), 
     current_user: str = Depends(get_current_user)
 ):
@@ -99,16 +100,34 @@ def list_orders(
 
     query = db.query(models.Order)
 
+    if search:
+        search_term = f"%{search}%"
+        query = query.filter(
+            or_(
+                models.Order.id.ilike(search_term),
+                cast(models.Order.latitude, String).ilike(search_term),
+                cast(models.Order.longitude, String).ilike(search_term)
+            )
+        )
+
     if sort_order == "asc":
         query = query.order_by(asc(sort_column))
     else:
         query = query.order_by(desc(sort_column))
 
     orders = query.offset(skip).limit(limit).all()
-    total = db.query(models.Order).count()
+    total = db.query(models.Order).filter(
+        or_(
+            models.Order.id.ilike(f"%{search}%"),
+            cast(models.Order.latitude, String).ilike(f"%{search}%"),
+            cast(models.Order.longitude, String).ilike(f"%{search}%")
+        )
+    ) if search else db.query(models.Order)
+    
+    total_count = total.count()
 
     return {
-        "total": total,
+        "total": total_count,
         "page": page,
         "limit": limit,
         "data": orders
