@@ -6,8 +6,7 @@
     "cypress.config.*",
     "nightwatch.conf.*",
     "playwright.config.*",
-    "eslint.config.*",
-    "src/vue-virtual-scroller.d.ts"
+    "eslint.config.*"
   ],
   "compilerOptions": {
     "noEmit": true,
