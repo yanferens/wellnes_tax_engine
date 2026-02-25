@@ -1,5 +1,4 @@
 <script setup lang="ts">
-// @ts-nocheck
 import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { useOrdersStore } from '@/stores/ordersStore';
