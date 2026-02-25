@@ -1,0 +1,19 @@
+*{
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: "Plus Jakarta Sans", sans-serif;
+}
+body{
+  position: relative;
+  margin-top: 96px;
+}
+section{
+  width: 100%;
+  padding: 0 20px;
+}
+.section_wrap{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
