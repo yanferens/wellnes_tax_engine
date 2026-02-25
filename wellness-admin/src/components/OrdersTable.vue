@@ -38,30 +38,38 @@ const isHighlighted = (item: any) => {
 
   const searchLower = search.toLowerCase();
 
-  const parts = searchLower.split(',').map((p: string) => p.trim());
+  const parts = searchLower.split(',')
+      .map((p: string) => p.trim())
+      .filter((p: string) => p.length > 0);
 
   if (parts.length === 3) {
     const [sId, sLat, sLon] = parts;
-
     const matchesId = String(item.id).toLowerCase().includes(sId);
-    const matchesLat = String(item.latitude).startsWith(sLat); // startsWith точніше для координат
+    const matchesLat = String(item.latitude).startsWith(sLat);
     const matchesLon = String(item.longitude).startsWith(sLon);
-
     return matchesId && matchesLat && matchesLon;
   }
 
   if (parts.length === 2) {
-    const [sLat, sLon] = parts;
+    const [p1, p2] = parts;
 
-    const matchesLat = String(item.latitude).startsWith(sLat);
-    const matchesLon = String(item.longitude).startsWith(sLon);
+    const isLatLon = String(item.latitude).startsWith(p1) &&
+        String(item.longitude).startsWith(p2);
 
-    return matchesLat && matchesLon;
+    const isIdLat = String(item.id).toLowerCase().includes(p1) &&
+        String(item.latitude).startsWith(p2);
+
+    return isLatLon || isIdLat;
   }
 
-  return String(item.id).toLowerCase().includes(searchLower) ||
-      String(item.latitude).includes(searchLower) ||
-      String(item.longitude).includes(searchLower);
+  if (parts.length === 1) {
+    const part = parts[0];
+    return String(item.id).toLowerCase().includes(part) ||
+        String(item.latitude).startsWith(part) ||
+        String(item.longitude).startsWith(part);
+  }
+
+  return false;
 }
 
 const columns = [
