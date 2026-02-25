@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import pandas as pd
-from sqlalchemy import text
+from sqlalchemy import text, desc, asc
 import io
 import uuid
 from . import models, schemas, services, database, auth
@@ -77,10 +77,34 @@ async def import_orders(file: UploadFile = File(...), current_user: str = Depend
     return {"message": f"Успішно відправлено {count} замовлень в чергу на обробку"}
 
 @app.get("/orders")
-def list_orders(page: int = 1, limit: int = 50, db: Session = Depends(database.get_db), current_user: str = Depends(get_current_user)):
+def list_orders(
+    page: int = 1, 
+    limit: int = 50, 
+    sort_by: str = "timestamp",
+    sort_order: str = "desc",
+    db: Session = Depends(database.get_db), 
+    current_user: str = Depends(get_current_user)
+):
     skip = (page - 1) * limit
 
-    orders = db.query(models.Order).order_by(models.Order.timestamp.desc()).offset(skip).limit(limit).all()
+    sort_columns = {
+        "id": models.Order.id,
+        "subtotal": models.Order.subtotal,
+        "tax_amount": models.Order.total_amount,
+        "jurisdictions": models.Order.jurisdictions,
+        "timestamp": models.Order.timestamp
+    }
+
+    sort_column = sort_columns.get(sort_by, models.Order.timestamp)
+
+    query = db.query(models.Order)
+
+    if sort_order == "asc":
+        query = query.order_by(asc(sort_column))
+    else:
+        query = query.order_by(desc(sort_column))
+
+    orders = query.offset(skip).limit(limit).all()
     total = db.query(models.Order).count()
 
     return {
