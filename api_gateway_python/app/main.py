@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import pandas as pd
-from sqlalchemy import text, desc, asc, or_, cast, String
+from sqlalchemy import text, desc, asc, or_, and_, cast, String
 import io
 import uuid
 from . import models, schemas, services, database, auth
@@ -101,33 +101,59 @@ def list_orders(
     query = db.query(models.Order)
 
     if search:
-        search_term = f"%{search}%"
-        query = query.filter(
-            or_(
-                models.Order.id.ilike(search_term),
-                cast(models.Order.latitude, String).ilike(search_term),
-                cast(models.Order.longitude, String).ilike(search_term)
+        parts = [p.strip() for p in search.split(",")]
+        if len(parts) == 3:
+            search_id = parts[0]
+            search_lat = parts[1]
+            search_lon = parts[2]
+            
+            query = query.filter(
+                and_(
+                    models.Order.id.ilike(f"%{search_id}%"),
+                    cast(models.Order.latitude, String).ilike(f"{search_lat}%"),
+                    cast(models.Order.longitude, String).ilike(f"{search_lon}%")
+                )
             )
-        )
+        elif len(parts) == 2:
+            search_lat = parts[0]
+            search_lon = parts[1]
+            
+            query = query.filter(
+                and_(
+                    cast(models.Order.latitude, String).ilike(f"{search_lat}%"),
+                    cast(models.Order.longitude, String).ilike(f"{search_lon}%")
+                )
+            )
+        else:
+            search_term = f"%{search}%"
+            query = query.filter(
+                or_(
+                    models.Order.id.ilike(search_term),
+                    cast(models.Order.latitude, String).ilike(search_term),
+                    cast(models.Order.longitude, String).ilike(search_term)
+                )
+            )
 
     if sort_order == "asc":
         query = query.order_by(asc(sort_column))
     else:
         query = query.order_by(desc(sort_column))
 
+    total_query = db.query(models.Order)
+    if total_query.statement == db.query(models.Order).statement:
+        search_term = f"%{search}%"
+        total_query = total_query.filter(or_(
+        models.Order.id.ilike(search_term),
+        cast(models.Order.latitude, String).ilike(search_term),
+        cast(models.Order.longitude, String).ilike(search_term)
+    ))
+            
+    total = total_query.count()
+
     orders = query.offset(skip).limit(limit).all()
-    total = db.query(models.Order).filter(
-        or_(
-            models.Order.id.ilike(f"%{search}%"),
-            cast(models.Order.latitude, String).ilike(f"%{search}%"),
-            cast(models.Order.longitude, String).ilike(f"%{search}%")
-        )
-    ) if search else db.query(models.Order)
-    
-    total_count = total.count()
 
     return {
-        "total": total_count,
+        "total": total,
         "page": page,
         "limit": limit,
         "data": orders
