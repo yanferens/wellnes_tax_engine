@@ -1,7 +1,13 @@
 <script setup lang="ts">
-import { DynamicScroller, DynamicScrollerItem } from 'vue-virtual-scroller';
+import {
+  DynamicScroller as DynamicScrollerComp,
+  DynamicScrollerItem as DynamicScrollerItemComp
+} from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { useOrdersStore } from '@/stores/ordersStore';
+
+const DynamicScroller = DynamicScrollerComp as any;
+const DynamicScrollerItem = DynamicScrollerItemComp as any;
 
 const store = useOrdersStore();
 
