@@ -103,25 +103,24 @@ def list_orders(
     if search:
         parts = [p.strip() for p in search.split(",")]
         if len(parts) == 3:
-            search_id = parts[0]
-            search_lat = parts[1]
-            search_lon = parts[2]
-            
             query = query.filter(
                 and_(
-                    models.Order.id.ilike(f"%{search_id}%"),
-                    cast(models.Order.latitude, String).ilike(f"{search_lat}%"),
-                    cast(models.Order.longitude, String).ilike(f"{search_lon}%")
+                    models.Order.id.ilike(f"%{parts[0]}%"),
+                    cast(models.Order.latitude, String).ilike(f"{parts[1]}%"),
+                    cast(models.Order.longitude, String).ilike(f"{parts[2]}%")
                 )
             )
         elif len(parts) == 2:
-            search_lat = parts[0]
-            search_lon = parts[1]
-            
             query = query.filter(
-                and_(
-                    cast(models.Order.latitude, String).ilike(f"{search_lat}%"),
-                    cast(models.Order.longitude, String).ilike(f"{search_lon}%")
+                or_(
+                    and_(
+                        models.Order.id.ilike(f"%{parts[0]}%"),
+                        cast(models.Order.latitude, String).ilike(f"{parts[1]}%")
+                    ),
+                    and_(
+                        cast(models.Order.latitude, String).ilike(f"{parts[0]}%"),
+                        cast(models.Order.longitude, String).ilike(f"{parts[1]}%")
+                    )
                 )
             )
         else:
