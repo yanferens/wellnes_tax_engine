@@ -1,15 +1,16 @@
 <script setup lang="ts">
-import {
-  DynamicScroller as DynamicScrollerComp,
-  DynamicScrollerItem as DynamicScrollerItemComp
-} from 'vue-virtual-scroller';
 import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 import { useOrdersStore } from '@/stores/ordersStore';
-
-const DynamicScroller = DynamicScrollerComp as any;
-const DynamicScrollerItem = DynamicScrollerItemComp as any;
+import {
+  DynamicScroller as _DynamicScroller,
+  DynamicScrollerItem as _DynamicScrollerItem
+} from 'vue-virtual-scroller';
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css';
 
 const store = useOrdersStore();
+
+const DynamicScroller = _DynamicScroller as any;
+const DynamicScrollerItem = _DynamicScrollerItem as any;
 
 const setSort = async (key: string) => {
   const currentSort = store.filters.sort_by;
