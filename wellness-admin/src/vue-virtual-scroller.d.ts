@@ -1,7 +1,7 @@
 declare module 'vue-virtual-scroller' {
-    import { DefineComponent } from 'vue';
+    const DynamicScroller: any;
+    const DynamicScrollerItem: any;
+    const RecycleScroller: any;
 
-    export const RecycleScroller: DefineComponent<any, any, any>;
-    export const DynamicScroller: DefineComponent<any, any, any>;
-    export const DynamicScrollerItem: DefineComponent<any, any, any>;
+    export { DynamicScroller, DynamicScrollerItem, RecycleScroller };
 }
