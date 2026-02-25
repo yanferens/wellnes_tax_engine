@@ -18,5 +18,6 @@ export interface Order extends OrderInput {
     composite_tax_rate: number;
     tax_amount: number;
     total_amount: number;
+    jurisdictions?: string[];
     breakdown: TaxBreakdown;
 }

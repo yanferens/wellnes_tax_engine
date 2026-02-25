@@ -26,12 +26,12 @@ const handleLogin = async () => {
       <h2>“Назва” податкові операції</h2>
       <form @submit.prevent="handleLogin">
         <div class="input_wrap">
-          <label>Email address</label>
-          <input v-model="email" type="email" placeholder="youremail@email.com" required>
+          <label for="email">Email address</label>
+          <input v-model="email" type="email" placeholder="youremail@email.com" name="email" required>
         </div>
         <div class="input_wrap">
-          <label>Password</label>
-          <input v-model="password" type="password" placeholder="*********" required>
+          <label for="password">Password</label>
+          <input v-model="password" type="password" placeholder="*********" name="password" required>
         </div>
         <p v-if="authStore.errorMessage" style="color: red; width: 100%;">
           {{ authStore.errorMessage }}

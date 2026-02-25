@@ -30,6 +30,7 @@ const isLoginPage = computed(() => route.name === 'login');
     width: 100%;
     box-shadow: 0 4px 4px 0 rgba(0, 0, 0, 0.05);
     z-index: 9;
+    padding: 0 20px;
   }
   .header_wrap{
     width: 100%;

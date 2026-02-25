@@ -92,6 +92,12 @@ const handleLogout = () => {
       opacity: 0;
     }
   }
+  .exit_btn{
+    transition: all 0.2s ease-in-out;
+  }
+  .exit_btn:hover, .exit_btn:active {
+    transform: scale(1.1);
+  }
   .exit_btn img{
     object-fit: contain;
     width: 38px;

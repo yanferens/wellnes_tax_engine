@@ -13,60 +13,62 @@ export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = computed(() => !!token.value);
 
     // actions
-    const login = async (email: string, password: string) => {
-        isLoading.value = true;
-        errorMessage.value = null;
-
-        try {
-            // ІМІТАЦІЯ ЗАПИТУ (затримка 1 сек):
-            await new Promise(resolve => setTimeout(resolve, 1000));
-
-            if (password === '12345678') { // Тимчасова перевірка для тесту
-                const fakeToken = 'bearer-token-xyz';
-
-                // Зберігаємо дані
-                token.value = fakeToken;
-                userEmail.value = email;
-                localStorage.setItem('auth_token', fakeToken);
-                localStorage.setItem('user_email', email);
-
-                return true; // Успіх
-            } else {
-                throw new Error('Невірний логін або пароль');
-            }
-
-        } catch (error: any) {
-            errorMessage.value = error.message || 'Помилка входу';
-            return false; // Невдача
-        } finally {
-            isLoading.value = false;
-        }
-    };
-
     // const login = async (email: string, password: string) => {
     //     isLoading.value = true;
     //     errorMessage.value = null;
     //
     //     try {
-    //         const data = await authService.login(email, password);
-    //         const accessToken = data.access_token;
-    //         token.value = accessToken;
-    //         userEmail.value = email;
-    //         localStorage.setItem('auth_token', accessToken);
-    //         localStorage.setItem('user_email', email);
+    //         // ІМІТАЦІЯ ЗАПИТУ (затримка 1 сек):
+    //         await new Promise(resolve => setTimeout(resolve, 1000));
     //
-    //         return true;
-    //     } catch (error: any) {
-    //         if (error.response && error.response.status === 401) {
-    //             errorMessage.value = 'Невірний логін або пароль';
+    //         if (password === '12345678') { // Тимчасова перевірка для тесту
+    //             const fakeToken = 'bearer-token-xyz';
+    //
+    //             // Зберігаємо дані
+    //             token.value = fakeToken;
+    //             userEmail.value = email;
+    //             localStorage.setItem('auth_token', fakeToken);
+    //             localStorage.setItem('user_email', email);
+    //
+    //             return true; // Успіх
     //         } else {
-    //             errorMessage.value = 'Помилка з\'єднання з сервером';
+    //             throw new Error('Невірний логін або пароль');
     //         }
-    //         return false;
+    //
+    //     } catch (error: any) {
+    //         errorMessage.value = error.message || 'Помилка входу';
+    //         return false; // Невдача
     //     } finally {
     //         isLoading.value = false;
     //     }
     // };
+
+    const login = async (email: string, password: string) => {
+        isLoading.value = true;
+        errorMessage.value = null;
+
+        try {
+            const data = await authService.login(email, password);
+            const accessToken = data.access_token;
+            token.value = accessToken;
+            userEmail.value = email;
+            localStorage.setItem('auth_token', accessToken);
+            localStorage.setItem('user_email', email);
+
+            return true;
+        } catch (error: any) {
+            if (error.response && error.response.status === 401) {
+                errorMessage.value = 'Невірний логін або пароль';
+            } else if (error.response && error.response.status === 422) {
+                errorMessage.value = 'Помилка формату даних (Validation Error)';
+            } else {
+                errorMessage.value = 'Помилка з\'єднання з сервером';
+            }
+            return false;
+        } finally {
+            isLoading.value = false;
+        }
+    };
 
     const logout = () => {
         token.value = null;

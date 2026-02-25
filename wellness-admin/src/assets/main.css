@@ -8,6 +8,10 @@ body{
   position: relative;
   margin-top: 96px;
 }
+section{
+  width: 100%;
+  padding: 0 20px;
+}
 .section_wrap{
   width: 100%;
   max-width: 1200px;

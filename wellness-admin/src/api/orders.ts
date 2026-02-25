@@ -45,9 +45,16 @@ export interface FetchOrdersParams {
 }
 
 export const authService = {
-    async login(email: string, password: string): Promise<{ access_token: string }> {
-        // Тут шлях залежить від бекенду.
-        const response = await apiClient.post('/auth/login', { email, password });
+    async login(email: string, password: string): Promise<{ access_token: string, token_type: string }> {
+        const params = new URLSearchParams();
+        params.append('username', email);
+        params.append('password', password);
+
+        const response = await apiClient.post('/token', params, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
         return response.data;
     }
 };
