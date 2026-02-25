@@ -9,3 +9,5 @@ python-dotenv==1.0.1
 httpx==0.26.0
 redis==5.0.1
 psycopg2-binary==2.9.9
+passlib[bcrypt]==1.7.4
+python-jose[cryptography]==3.3.0

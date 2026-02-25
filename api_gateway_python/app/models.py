@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Float, String, DateTime
+from sqlalchemy import Column, Float, String, DateTime, Integer
 from .database import Base
 import datetime
 
@@ -22,3 +22,10 @@ class Order(Base):
     special_rates = Column(Float)
 
     jurisdictions = Column(String, nullable=True)
+
+class User(Base):
+    __tablename__ = "users"
+
+    id = Column(Integer, primary_key=True, index=True)
+    username = Column(String, unique=True, index=True, nullable=False)
+    hashed_password = Column(String, nullable=False)
