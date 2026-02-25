@@ -22,6 +22,7 @@
   .logo{
     width: 70px;
     height: 60px;
+    object-fit: contain;
   }
   .logo_cont{
     display: flex;
@@ -41,5 +42,15 @@
     font-style: normal;
     font-weight: 400;
     line-height: normal;
+  }
+
+  @media screen and (max-width: 600px){
+    .logo_wrap{
+      column-gap: 15px;
+    }
+    .logo{
+      width: 70px;
+      height: 60px;
+    }
   }
 </style>

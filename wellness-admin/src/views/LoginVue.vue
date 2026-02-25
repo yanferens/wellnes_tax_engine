@@ -92,6 +92,7 @@ form{
   flex-direction: column;
   align-items: flex-start;
   row-gap: 24px;
+  width: 100%;
 }
 .input_wrap label{
   color: #000;
@@ -101,7 +102,8 @@ form{
   line-height: normal;
 }
 .input_wrap input{
-  width: 661px;
+  max-width: 661px;
+  width: 100%;
   height: 46px;
   padding: 10px 22px;
   border-radius: 12px;
@@ -142,5 +144,39 @@ form{
   background: #ccc;
   color: #000000;
   cursor: not-allowed;
+}
+
+/* media styles */
+@media screen and (max-width: 600px){
+  .login-section{
+    margin: 145px 0 49px;
+  }
+  .login-section .section_wrap{
+    padding: 60px 30px;
+    row-gap: 18px;
+  }
+  .big_logo{
+    width: 183px;
+    height: 122px;
+  }
+  h1{
+    font-size: 36px;
+  }
+  h2{
+    font-size: 24px;
+  }
+  .input_wrap{
+    row-gap: 18px;
+  }
+  .input_wrap label{
+    font-size: 18px;
+  }
+  .input_wrap input::placeholder{
+    font-size: 16px;
+  }
+  .submit_btn{
+    margin-top: 18px;
+    font-size: 20px;
+  }
 }
 </style>
