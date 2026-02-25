@@ -87,17 +87,6 @@ def list_orders(
     current_user: str = Depends(get_current_user)
 ):
     skip = (page - 1) * limit
-
-    sort_columns = {
-        "id": models.Order.id,
-        "subtotal": models.Order.subtotal,
-        "tax_amount": models.Order.total_amount,
-        "jurisdictions": models.Order.jurisdictions,
-        "timestamp": models.Order.timestamp
-    }
-
-    sort_column = sort_columns.get(sort_by, models.Order.timestamp)
-
     query = db.query(models.Order)
 
     if search:
@@ -133,21 +122,21 @@ def list_orders(
                 )
             )
 
+    total = query.count()
+
+    sort_columns = {
+        "id": models.Order.id,
+        "subtotal": models.Order.subtotal,
+        "tax_amount": models.Order.total_amount,
+        "jurisdictions": models.Order.jurisdictions,
+        "timestamp": models.Order.timestamp
+    }
+    sort_column = sort_columns.get(sort_by, models.Order.timestamp)
+
     if sort_order == "asc":
         query = query.order_by(asc(sort_column))
     else:
         query = query.order_by(desc(sort_column))
-
-    total_query = db.query(models.Order)
-    if total_query.statement == db.query(models.Order).statement:
-        search_term = f"%{search}%"
-        total_query = total_query.filter(or_(
-        models.Order.id.ilike(search_term),
-        cast(models.Order.latitude, String).ilike(search_term),
-        cast(models.Order.longitude, String).ilike(search_term)
-    ))
-            
-    total = total_query.count()
 
     orders = query.offset(skip).limit(limit).all()
 
