@@ -20,7 +20,7 @@ const route = useRoute();
     display: flex;
     flex-direction: row;
     align-items: center;
-    column-gap: 80px;
+    column-gap: 78px;
   }
   .active_btn {
     text-decoration: none;

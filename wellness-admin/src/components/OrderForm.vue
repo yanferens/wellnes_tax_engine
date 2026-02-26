@@ -197,4 +197,27 @@ h2 {
   opacity: 0;
   transform: scale(0.9) translateY(20px);
 }
+@media screen and (max-width: 600px){
+  .modal-content{
+    width: 100% !important;
+    max-width: 340px;
+    padding: 22px 23px 57px !important;
+  }
+  .modal-content form .close_btn img{
+    width: 24px;
+    height: 24px;
+  }
+  .modal-content form h2{
+    font-size: 28px;
+  }
+  .modal-content form .form_inputs{
+    width: 100%;
+  }
+  .modal-content form .form_inputs div{
+    width: 100%;
+  }
+  .modal-content form .form_inputs div input{
+    width: 100%;
+  }
+}
 </style>

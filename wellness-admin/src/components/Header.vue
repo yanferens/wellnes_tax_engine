@@ -1,12 +1,26 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { ref, onMounted, onUnmounted } from 'vue';
 import { useRoute } from 'vue-router';
 import Logo from "@/components/Logo.vue";
 import Navigation from "@/components/Navigation.vue";
 import CreateOrderExit from "@/components/CreateOrderExit.vue";
+import MobileMenu from "@/components/MobileMenu.vue";
 
 const route = useRoute();
 const isLoginPage = computed(() => route.name === 'login');
+
+const isMobile = ref(false);
+const checkScreenSize = () => {
+  isMobile.value = window.innerWidth <= 768;
+};
+onMounted(() => {
+  checkScreenSize();
+  window.addEventListener('resize', checkScreenSize);
+});
+onUnmounted(() => {
+  window.removeEventListener('resize', checkScreenSize);
+});
 </script>
 
 <template>
@@ -14,10 +28,13 @@ const isLoginPage = computed(() => route.name === 'login');
     <div class="header_wrap" :class="{ 'login_page_content': isLoginPage }">
       <Logo />
       <template v-if="!isLoginPage">
-        <Navigation/>
-        <CreateOrderExit/>
+        <MobileMenu v-if="isMobile"/>
+        <div v-else class="desktop-nav">
+          <Navigation/>
+          <CreateOrderExit/>
+        </div>
       </template>
-      <div class="admin_panel">Панель адміна</div>
+      <div v-else class="admin_panel">Панель адміна</div>
     </div>
   </header>
 </template>
@@ -38,15 +55,24 @@ const isLoginPage = computed(() => route.name === 'login');
     margin: 0 auto;
     display: flex;
     flex-direction: row;
-    justify-content: space-between;
+    column-gap: 176px;
     align-items: center;
     padding: 18px 0;
+  }
+  .header_wrap div.desktop-nav{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    column-gap: 176px;
   }
   .admin_panel{
     display: none;
   }
   .login_page_content.header_wrap{
     max-width: 897px;
+    column-gap: 0;
+    justify-content: space-between;
   }
   .login_page_content .admin_panel{
     display: block;
