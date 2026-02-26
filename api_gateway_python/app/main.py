@@ -6,6 +6,7 @@ import pandas as pd
 from sqlalchemy import text, desc, asc, or_, and_, cast, String
 import io
 import uuid
+import re
 from . import models, schemas, services, database, auth
 
 
@@ -90,7 +91,7 @@ def list_orders(
     query = db.query(models.Order)
 
     if search:
-        parts = [p.strip() for p in search.split(",")]
+        parts = [p for p in re.split(r'[,\s]+', search.strip()) if p]
         if len(parts) == 3:
             query = query.filter(
                 and_(
@@ -112,8 +113,8 @@ def list_orders(
                     )
                 )
             )
-        else:
-            search_term = f"%{search}%"
+        elif len(parts) == 1:
+            search_term = f"%{parts[0]}%"
             query = query.filter(
                 or_(
                     models.Order.id.ilike(search_term),
