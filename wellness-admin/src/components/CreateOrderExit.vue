@@ -104,4 +104,13 @@ const handleLogout = () => {
     height: 38px;
     filter: drop-shadow(0px 3px 2px rgba(0, 0, 0, 0.25));
   }
+  @media screen and (max-width: 600px){
+    .create_order_wrap{
+      column-gap: 15px;
+    }
+    .exit_btn img{
+      width: 36px;
+      height: 36px;
+    }
+  }
 </style>

@@ -158,4 +158,24 @@
   .example-cont ol{
     list-style-position: inside;
   }
+
+  @media screen and (max-width: 600px){
+    .import_csv_file_section{
+      margin: 145px 0 49px;
+    }
+    .import_csv_file_section .section_wrap{
+      padding: 60px 30px;
+      row-gap: 18px;
+    }
+    h1{
+      font-size: 28px;
+      text-align: center;
+    }
+    p{
+      text-align: center;
+    }
+    .example-cont{
+      margin-left: 0;
+    }
+  }
 </style>

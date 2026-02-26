@@ -59,8 +59,11 @@ export const useOrdersStore = defineStore('orders', {
             this.isLoading = true;
             this.errorMessage = null;
             try {
-                const newOrder = await ordersService.createOrder(orderData);
-                this.orders.unshift(newOrder);
+                await ordersService.createOrder(orderData);
+
+                this.currentPage = 1;
+                await this.fetchOrders();
+
             } catch (error) {
                 this.errorMessage = 'Помилка під час створення замовлення';
                 console.error(error);
