@@ -32,4 +32,12 @@
   .controls-row {
     margin-bottom: 46px;
   }
+  @media screen and (max-width: 600px){
+    .orders_list{
+      padding: 56px 0;
+    }
+    .orders_list .section_wrap{
+      padding: 0 30px;
+    }
+  }
 </style>

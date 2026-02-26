@@ -85,4 +85,17 @@ onUnmounted(() => {
     font-weight: 400;
     line-height: normal;
   }
+
+  @media screen and (max-width: 600px){
+    .header_wrap{
+      width: 100%;
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: row;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 0;
+    }
+  }
 </style>
