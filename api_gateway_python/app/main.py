@@ -6,6 +6,7 @@ import pandas as pd
 from sqlalchemy import text, desc, asc, or_, and_, cast, String
 import io
 import uuid
+import re
 from . import models, schemas, services, database, auth
 
 
@@ -33,7 +34,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except auth.JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-@app.post("/token")
+@app.post("/token", include_in_schema=False)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
@@ -87,45 +88,33 @@ def list_orders(
     current_user: str = Depends(get_current_user)
 ):
     skip = (page - 1) * limit
-
-    sort_columns = {
-        "id": models.Order.id,
-        "subtotal": models.Order.subtotal,
-        "tax_amount": models.Order.total_amount,
-        "jurisdictions": models.Order.jurisdictions,
-        "timestamp": models.Order.timestamp
-    }
-
-    sort_column = sort_columns.get(sort_by, models.Order.timestamp)
-
     query = db.query(models.Order)
 
     if search:
-        parts = [p.strip() for p in search.split(",")]
+        parts = [p for p in re.split(r'[,\s]+', search.strip()) if p]
         if len(parts) == 3:
-            search_id = parts[0]
-            search_lat = parts[1]
-            search_lon = parts[2]
-            
             query = query.filter(
                 and_(
-                    models.Order.id.ilike(f"%{search_id}%"),
-                    cast(models.Order.latitude, String).ilike(f"{search_lat}%"),
-                    cast(models.Order.longitude, String).ilike(f"{search_lon}%")
+                    models.Order.id.ilike(f"%{parts[0]}%"),
+                    cast(models.Order.latitude, String).ilike(f"{parts[1]}%"),
+                    cast(models.Order.longitude, String).ilike(f"{parts[2]}%")
                 )
             )
         elif len(parts) == 2:
-            search_lat = parts[0]
-            search_lon = parts[1]
-            
             query = query.filter(
-                and_(
-                    cast(models.Order.latitude, String).ilike(f"{search_lat}%"),
-                    cast(models.Order.longitude, String).ilike(f"{search_lon}%")
+                or_(
+                    and_(
+                        models.Order.id.ilike(f"%{parts[0]}%"),
+                        cast(models.Order.latitude, String).ilike(f"{parts[1]}%")
+                    ),
+                    and_(
+                        cast(models.Order.latitude, String).ilike(f"{parts[0]}%"),
+                        cast(models.Order.longitude, String).ilike(f"{parts[1]}%")
+                    )
                 )
             )
-        else:
-            search_term = f"%{search}%"
+        elif len(parts) == 1:
+            search_term = f"%{parts[0]}%"
             query = query.filter(
                 or_(
                     models.Order.id.ilike(search_term),
@@ -134,21 +123,21 @@ def list_orders(
                 )
             )
 
+    total = query.count()
+
+    sort_columns = {
+        "id": models.Order.id,
+        "subtotal": models.Order.subtotal,
+        "tax_amount": models.Order.total_amount,
+        "jurisdictions": models.Order.jurisdictions,
+        "timestamp": models.Order.timestamp
+    }
+    sort_column = sort_columns.get(sort_by, models.Order.timestamp)
+
     if sort_order == "asc":
         query = query.order_by(asc(sort_column))
     else:
         query = query.order_by(desc(sort_column))
-
-    total_query = db.query(models.Order)
-    if total_query.statement == db.query(models.Order).statement:
-        search_term = f"%{search}%"
-        total_query = total_query.filter(or_(
-        models.Order.id.ilike(search_term),
-        cast(models.Order.latitude, String).ilike(search_term),
-        cast(models.Order.longitude, String).ilike(search_term)
-    ))
-            
-    total = total_query.count()
 
     orders = query.offset(skip).limit(limit).all()
 
