@@ -64,9 +64,10 @@ const isHighlighted = (item: any) => {
 
   if (parts.length === 1) {
     const part = parts[0];
+
     return String(item.id).toLowerCase().includes(part) ||
-        String(item.latitude).startsWith(part) ||
-        String(item.longitude).startsWith(part);
+        String(item.latitude).includes(part) ||
+        String(item.longitude).includes(part);
   }
 
   return false;
