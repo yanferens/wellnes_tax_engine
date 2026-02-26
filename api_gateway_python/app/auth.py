@@ -8,6 +8,7 @@ ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 60
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+print(pwd_context.hash("admin"))
 
 def get_password_hash(password):
     return pwd_context.hash(password)

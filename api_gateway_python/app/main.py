@@ -3,9 +3,10 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
 import pandas as pd
-from sqlalchemy import text
+from sqlalchemy import text, desc, asc, or_, and_, cast, String
 import io
 import uuid
+import re
 from . import models, schemas, services, database, auth
 
 
@@ -33,7 +34,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except auth.JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-@app.post("/token")
+@app.post("/token", include_in_schema=False)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
@@ -77,11 +78,68 @@ async def import_orders(file: UploadFile = File(...), current_user: str = Depend
     return {"message": f"Успішно відправлено {count} замовлень в чергу на обробку"}
 
 @app.get("/orders")
-def list_orders(page: int = 1, limit: int = 50, db: Session = Depends(database.get_db), current_user: str = Depends(get_current_user)):
+def list_orders(
+    page: int = 1, 
+    limit: int = 50, 
+    sort_by: str = "timestamp",
+    sort_order: str = "desc",
+    search: str = None,
+    db: Session = Depends(database.get_db), 
+    current_user: str = Depends(get_current_user)
+):
     skip = (page - 1) * limit
+    query = db.query(models.Order)
 
-    orders = db.query(models.Order).order_by(models.Order.timestamp.desc()).offset(skip).limit(limit).all()
-    total = db.query(models.Order).count()
+    if search:
+        parts = [p for p in re.split(r'[,\s]+', search.strip()) if p]
+        if len(parts) == 3:
+            query = query.filter(
+                and_(
+                    models.Order.id.ilike(f"%{parts[0]}%"),
+                    cast(models.Order.latitude, String).ilike(f"{parts[1]}%"),
+                    cast(models.Order.longitude, String).ilike(f"{parts[2]}%")
+                )
+            )
+        elif len(parts) == 2:
+            query = query.filter(
+                or_(
+                    and_(
+                        models.Order.id.ilike(f"%{parts[0]}%"),
+                        cast(models.Order.latitude, String).ilike(f"{parts[1]}%")
+                    ),
+                    and_(
+                        cast(models.Order.latitude, String).ilike(f"{parts[0]}%"),
+                        cast(models.Order.longitude, String).ilike(f"{parts[1]}%")
+                    )
+                )
+            )
+        elif len(parts) == 1:
+            search_term = f"%{parts[0]}%"
+            query = query.filter(
+                or_(
+                    models.Order.id.ilike(search_term),
+                    cast(models.Order.latitude, String).ilike(search_term),
+                    cast(models.Order.longitude, String).ilike(search_term)
+                )
+            )
+
+    total = query.count()
+
+    sort_columns = {
+        "id": models.Order.id,
+        "subtotal": models.Order.subtotal,
+        "tax_amount": models.Order.total_amount,
+        "jurisdictions": models.Order.jurisdictions,
+        "timestamp": models.Order.timestamp
+    }
+    sort_column = sort_columns.get(sort_by, models.Order.timestamp)
+
+    if sort_order == "asc":
+        query = query.order_by(asc(sort_column))
+    else:
+        query = query.order_by(desc(sort_column))
+
+    orders = query.offset(skip).limit(limit).all()
 
     return {
         "total": total,

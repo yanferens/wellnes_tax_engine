@@ -2,7 +2,6 @@
   import { onMounted } from 'vue';
   import { useOrdersStore } from '../stores/ordersStore';
   import SearchInput from "@/components/SearchInput.vue";
-  import OrderFilter from "@/components/OrderFilter.vue";
   import OrdersTable from "@/components/OrdersTable.vue";
 
   const ordersStore = useOrdersStore();
@@ -20,7 +19,6 @@
         <div class="controls-row">
           <SearchInput class="search-component" />
         </div>
-        <OrderFilter />
         <OrdersTable />
       </div>
     </section>
@@ -29,9 +27,9 @@
 
 <style scoped>
   .orders_list{
-    padding: 17px 0;
+    padding: 76px 0;
   }
   .controls-row {
-    margin-bottom: 20px;
+    margin-bottom: 46px;
   }
 </style>
