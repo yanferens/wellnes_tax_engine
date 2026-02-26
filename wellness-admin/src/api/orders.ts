@@ -49,20 +49,12 @@ export const authService = {
         const params = new URLSearchParams();
         params.append('username', email);
         params.append('password', password);
-        try {
-            const response = await apiClient.post('/token', params, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                }
-            });
-            return response.data;
-        } catch (error: any) {
-            if (error.response && error.response.status === 400) {
-                const serverMessage = error.response.data?.detail;
-                throw new Error(serverMessage || 'Невірний логін або пароль');
+        const response = await apiClient.post('/token', params, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
             }
-            throw error;
-        }
+        });
+        return response.data;
     }
 };
 

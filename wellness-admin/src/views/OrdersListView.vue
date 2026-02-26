@@ -1,10 +1,16 @@
 <script setup lang="ts">
-  import { onMounted } from 'vue';
+  import { onMounted, computed } from 'vue';
   import { useOrdersStore } from '../stores/ordersStore';
   import SearchInput from "@/components/SearchInput.vue";
   import OrdersTable from "@/components/OrdersTable.vue";
+  import ErrorMessageBlock from '@/components/ErrorMessageBlock.vue';
 
   const ordersStore = useOrdersStore();
+  const hasError = computed(() => !!ordersStore.errorMessage);
+
+  const closeErrorModal = () => {
+    ordersStore.errorMessage = null;
+  };
 
   // call data loading when opening the page
   onMounted(() => {
@@ -21,6 +27,8 @@
         </div>
         <OrdersTable />
       </div>
+      <ErrorMessageBlock :show="hasError" :message="ordersStore.errorMessage ||
+      'Сталася помилка під час завантаження даних'" @close="closeErrorModal"/>
     </section>
   </main>
 </template>
