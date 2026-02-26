@@ -34,7 +34,7 @@ def get_current_user(token: str = Depends(oauth2_scheme)):
     except auth.JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
 
-@app.post("/token")
+@app.post("/token", include_in_schema=False)
 async def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(database.get_db)):
     user = db.query(models.User).filter(models.User.username == form_data.username).first()
     if not user or not auth.verify_password(form_data.password, user.hashed_password):
