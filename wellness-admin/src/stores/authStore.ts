@@ -58,19 +58,20 @@ export const useAuthStore = defineStore('auth', () => {
             return true;
         } catch (error: any) {
             if (error.response) {
+                // Отримуємо повідомлення "Incorrect username or password" з FastAPI
                 const serverMessage = error.response.data?.detail;
 
-                if (error.response.status === 400) {
-                    errorMessage.value = serverMessage || 'Невірні дані для входу';
-                } else if (error.response.status === 401) {
+                if (error.response.status === 400 || error.response.status === 401) {
                     errorMessage.value = serverMessage || 'Невірний логін або пароль';
                 } else if (error.response.status === 422) {
-                    errorMessage.value = serverMessage || 'Помилка формату даних';
+                    errorMessage.value = 'Помилка формату даних (422)';
                 } else {
+                    // ВИПРАВЛЕНО: додано зворотні лапки ``
                     errorMessage.value = `Помилка сервера: ${error.response.status}`;
                 }
             } else {
-                errorMessage.value = 'Помилка з\'єднання з сервером';
+                // Це спрацьовує при ERR_CONNECTION_REFUSED
+                errorMessage.value = 'Сервер недоступний. Перевірте IP адресу в конфігурації.';
             }
             return false;
         } finally {
