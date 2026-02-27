@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useOrdersStore } from '../stores/ordersStore';
+import ErrorMessageBlock from '@/components/ErrorMessageBlock.vue';
 
 defineProps<{
   isOpen: boolean
@@ -17,13 +18,27 @@ interface FormState {
   longitude: number | null;
   subtotal: number | null;
 }
+
 const form = ref<FormState>({
   latitude: null,
   longitude: null,
   subtotal: null,
 });
 
+const errorMessage = ref<string>('');
+const hasError = computed(() => errorMessage.value.length > 0);
+
+const handleError = (message: string) => {
+  errorMessage.value = message;
+};
+
+const clearError = () => {
+  errorMessage.value = '';
+};
+
 const submitForm = async () => {
+  clearError();
+
   const orderData = {
     latitude: form.value.latitude ?? 0,
     longitude: form.value.longitude ?? 0,
@@ -33,16 +48,21 @@ const submitForm = async () => {
 
   try {
     await ordersStore.createOrder(orderData);
-    alert('Замовлення створено та розраховано!');
+    if (ordersStore.errorMessage) {
+      handleError(ordersStore.errorMessage);
+      return;
+    }
     closeModal();
     form.value = { latitude: null, longitude: null, subtotal: null };
-  } catch (e) {
-    alert('Помилка створення');
+    window.location.reload();
+  } catch (e: any) {
+    handleError(e?.message || 'Помилка створення замовлення');
   }
 };
 
 const closeModal = () => {
   emit('close');
+  clearError();
 };
 </script>
 
@@ -78,6 +98,7 @@ const closeModal = () => {
       </div>
     </Transition>
   </Teleport>
+  <ErrorMessageBlock :show="hasError" :message="errorMessage" @close="clearError"/>
 </template>
 
 <style scoped>
