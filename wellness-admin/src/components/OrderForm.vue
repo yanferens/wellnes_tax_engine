@@ -28,6 +28,8 @@ const form = ref<FormState>({
 const errorMessage = ref<string>('');
 const hasError = computed(() => errorMessage.value.length > 0);
 
+const isProcessing = ref(false);
+
 const handleError = (message: string) => {
   errorMessage.value = message;
 };
@@ -38,6 +40,7 @@ const clearError = () => {
 
 const submitForm = async () => {
   clearError();
+  isProcessing.value = true;
 
   const orderData = {
     latitude: form.value.latitude ?? 0,
@@ -47,22 +50,56 @@ const submitForm = async () => {
   };
 
   try {
-    await ordersStore.createOrder(orderData);
+    const response = (await ordersStore.createOrder(orderData)) as any;
+
     if (ordersStore.errorMessage) {
       handleError(ordersStore.errorMessage);
+      isProcessing.value = false;
       return;
     }
+
+    const orderId = response?.order_id || response?.data?.order_id;
+
+    if (!orderId) {
+      throw new Error('Не вдалося отримати ID замовлення від сервера');
+    }
+
+    let isProcessed = false;
+    let attempts = 0;
+    const maxAttempts = 30;
+
+    while (!isProcessed && attempts < maxAttempts) {
+      attempts++;
+
+      await ordersStore.fetchOrders();
+      const order = ordersStore.orders.find((o: any) => o.id === orderId);
+
+      if (order && order.total_amount !== null && order.total_amount !== undefined) {
+        isProcessed = true;
+      }
+
+      if (!isProcessed) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
+    }
+
+    if (!isProcessed) {
+      throw new Error('Час очікування розрахунку вийшов. Спробуйте пізніше.');
+    }
+
     closeModal();
-    form.value = { latitude: null, longitude: null, subtotal: null };
     window.location.reload();
+
   } catch (e: any) {
-    handleError(e?.message || 'Помилка створення замовлення');
+    handleError(e?.message || 'Виникла помилка під час обробки замовлення');
+    isProcessing.value = false;
   }
 };
 
 const closeModal = () => {
   emit('close');
   clearError();
+  isProcessing.value = false;
 };
 </script>
 
@@ -79,19 +116,19 @@ const closeModal = () => {
             <div class="form_inputs">
               <div>
                 <label>Широта:</label>
-                <input type="number" placeholder="40.712776" step="any" v-model="form.latitude" required />
+                <input type="number" placeholder="40.712776" step="any" v-model="form.latitude" required :disabled="isProcessing" />
               </div>
               <div>
                 <label>Довгота:</label>
-                <input type="number" placeholder="-74.005974" step="any" v-model="form.longitude" required />
+                <input type="number" placeholder="-74.005974" step="any" v-model="form.longitude" required :disabled="isProcessing" />
               </div>
               <div>
                 <label>Сума без податку ($):</label>
-                <input type="number" placeholder="100.07" step="0.01" v-model="form.subtotal" required />
+                <input type="number" placeholder="100.07" step="0.01" v-model="form.subtotal" required :disabled="isProcessing" />
               </div>
             </div>
-            <button class="submit_btn" type="submit" :disabled="ordersStore.isLoading">
-              {{ ordersStore.isLoading ? 'Створення...' : 'Створити замовлення' }}
+            <button class="submit_btn" type="submit" :disabled="isProcessing">
+              {{ isProcessing ? 'Обробка замовлення...' : 'Створити замовлення' }}
             </button>
           </form>
         </div>
