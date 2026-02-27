@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgis/postgis:15-3.3
+    image: postgis/postgis:15-3.5
     container_name: tax_db
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -17,7 +17,7 @@ services:
       context: ./wellness-admin
     container_name: tax_frontend
     ports:
-      - "5173:80"
+      - "9020:80"
     depends_on:
       - api_gateway
   redis:

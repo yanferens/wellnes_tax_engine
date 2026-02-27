@@ -9,7 +9,6 @@ type Config struct {
 
 func Load() *Config {
 	return &Config{
-		// os.Getenv бере значення, які Docker підставив із .env
 		DatabaseURL: os.Getenv("DATABASE_URL"),
 		RedisURL:    os.Getenv("REDIS_URL"),
 	}
