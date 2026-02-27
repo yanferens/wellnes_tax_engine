@@ -9,18 +9,15 @@ const apiClient = axios.create({
 });
 
 // INTERCEPTOR
-apiClient.interceptors.response.use(
-    (response) => response,
-    (error) => {
-        if (error.response && error.response.status === 401) {
-            localStorage.removeItem('auth_token');
-            localStorage.removeItem('user_email');
-            window.location.href = '/login';
-            return new Promise(() => {});
-        }
-        return Promise.reject(error);
+apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
+    const token = localStorage.getItem('auth_token');
+    if (token) {
+        config.headers.set('Authorization', `Bearer ${token}`);
     }
-);
+    return config;
+}, (error) => {
+    return Promise.reject(error);
+});
 
 // Interface for GET request parameters (pagination and filters)
 export interface FetchOrdersParams {
