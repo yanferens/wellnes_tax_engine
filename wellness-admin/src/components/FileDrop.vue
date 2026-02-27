@@ -25,6 +25,10 @@ const validateAndEmit = (file: File) => {
     emit('error', 'Please upload a file in .csv format.');
     return;
   }
+  if (file.size === 0) {
+    emit('error', 'The file is empty. Please upload a file that contains data.');
+    return;
+  }
   if (file.size > MAX_FILE_SIZE_BYTES) {
     emit('error', `File too large (max. ${MAX_FILE_SIZE_MB} MB)`);
     return;
