@@ -181,6 +181,9 @@ const columns = [
 </template>
 
 <style scoped>
+.table-wrapper {
+  width: 100%;
+}
 .custom-table {
   width: 100%;
   border-radius: 12px;
@@ -191,9 +194,10 @@ const columns = [
 }
 .table-header, .table-row {
   display: grid;
-  grid-template-columns: 351.55px 241.22px 320.73px 286.5px;
+  grid-template-columns: 1.5fr 1fr 1fr 1.2fr;
   align-items: center;
   padding: 0 20px;
+  gap: 15px;
 }
 .table-header {
   border-bottom: 1px solid #E5E7EB;
@@ -206,15 +210,17 @@ const columns = [
   font-weight: 700;
   text-align: left;
   cursor: pointer;
+  user-select: none;
 }
 .scroller {
-  height: 675px;
+  height: 510px;
   overflow-y: auto;
+  overflow-x: hidden;
 }
 .table-row-container {
   border-bottom: 1px solid #F3F4F6;
 }
-.table-row:hover, .table-row:hover, .table-row.is-open, .table-row.is-highlighted{
+.table-row:hover, .table-row.is-open, .table-row.is-highlighted {
   background: #F0FDF4;
 }
 .table-row.main-info {
@@ -227,6 +233,9 @@ const columns = [
   font-weight: 400;
   padding: 16.5px 0;
   text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .cell.id-cell,
 .cell:nth-child(3) {
@@ -265,10 +274,11 @@ const columns = [
   background-color: #FAFAFA;
   padding: 20px 60px;
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 15px;
+  align-items: start;
 }
-.row-details .cell{
+.row-details .cell {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -278,8 +288,11 @@ const columns = [
   font-style: normal;
   font-weight: 500;
   line-height: normal;
+  padding: 0;
+  white-space: normal;
+  overflow: visible;
 }
-.row-details .cell span{
+.row-details .cell span {
   color: #9CA3AF;
   font-size: 11px;
   font-style: normal;
@@ -301,6 +314,7 @@ const columns = [
   align-items: center;
   justify-content: center;
   border-top: 1px solid #E5E7EB;
+  flex-wrap: wrap;
 }
 .pagination button {
   border: none;
@@ -317,6 +331,64 @@ const columns = [
   color: #000;
   font-size: 18px;
 }
-.error { color: red; text-align: center;}
+.error { color: red; text-align: center; }
 .loading { text-align: center; padding: 20px; }
+
+@media (max-width: 768px) {
+  .table-header {
+    display: none;
+  }
+  .table-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 15px;
+    gap: 10px;
+    height: auto;
+  }
+  .cell {
+    padding: 0;
+    white-space: normal;
+  }
+  .cell.id-cell {
+    grid-column: span 2;
+    margin-bottom: 5px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed #E5E7EB;
+  }
+  .table-row .cell:nth-child(2)::before {
+    content: "Subtotal: ";
+    display: block;
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+  .table-row .cell:nth-child(3)::before {
+    content: "Total Amount: ";
+    display: block;
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+  .table-row .cell:nth-child(4) {
+    grid-column: span 2;
+    margin-top: 5px;
+  }
+  .table-row .cell:nth-child(4)::before {
+    content: "Jurisdictions: ";
+    display: block;
+    font-size: 11px;
+    color: #9CA3AF;
+    font-weight: 400;
+    margin-bottom: 2px;
+  }
+  .row-details {
+    padding: 15px;
+    grid-template-columns: 1fr 1fr;
+  }
+  .scroller {
+    height: 675px;
+  }
+}
 </style>

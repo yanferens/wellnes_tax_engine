@@ -59,4 +59,10 @@ const onInput = () => {
     flex-shrink: 0;
     color: #9CA3AF;
   }
+
+  @media screen and (max-width: 600px){
+    .search_img{
+      display: none;
+    }
+  }
 </style>

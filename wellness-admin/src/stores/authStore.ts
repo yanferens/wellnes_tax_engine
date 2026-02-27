@@ -57,10 +57,18 @@ export const useAuthStore = defineStore('auth', () => {
 
             return true;
         } catch (error: any) {
-            if (error.response && error.response.status === 401) {
-                errorMessage.value = 'Невірний логін або пароль';
-            } else if (error.response && error.response.status === 422) {
-                errorMessage.value = 'Помилка формату даних (Validation Error)';
+            if (error.response) {
+                const serverMessage = error.response.data?.detail;
+
+                if (error.response.status === 400) {
+                    errorMessage.value = serverMessage || 'Невірні дані для входу';
+                } else if (error.response.status === 401) {
+                    errorMessage.value = serverMessage || 'Невірний логін або пароль';
+                } else if (error.response.status === 422) {
+                    errorMessage.value = serverMessage || 'Помилка формату даних';
+                } else {
+                    errorMessage.value = `Помилка сервера: ${error.response.status}`;
+                }
             } else {
                 errorMessage.value = 'Помилка з\'єднання з сервером';
             }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import {computed, ref} from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import ErrorMessageBlock from '@/components/ErrorMessageBlock.vue';
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -11,10 +12,14 @@ const password = ref('');
 
 const handleLogin = async () => {
   const success = await authStore.login(email.value, password.value);
-
   if (success) {
     router.push({ name: 'orders' });
   }
+};
+
+const hasError = computed(() => !!authStore.errorMessage);
+const closeErrorModal = () => {
+  authStore.errorMessage = null;
 };
 </script>
 
@@ -33,13 +38,11 @@ const handleLogin = async () => {
           <label for="password">Password</label>
           <input v-model="password" type="password" placeholder="*********" name="password" required>
         </div>
-        <p v-if="authStore.errorMessage" style="color: red; width: 100%;">
-          {{ authStore.errorMessage }}
-        </p>
         <button class="submit_btn" type="submit" :disabled="authStore.isLoading">
           {{ authStore.isLoading ? 'Вхід...' : 'Увійти на сайт' }}</button>
       </form>
     </div>
+    <ErrorMessageBlock :show="hasError" :message="authStore.errorMessage || ''" @close="closeErrorModal"/>
   </section>
 </template>
 
