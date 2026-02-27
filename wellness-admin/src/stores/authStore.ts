@@ -13,36 +13,6 @@ export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = computed(() => !!token.value);
 
     // actions
-    // const login = async (email: string, password: string) => {
-    //     isLoading.value = true;
-    //     errorMessage.value = null;
-    //
-    //     try {
-    //         // ІМІТАЦІЯ ЗАПИТУ (затримка 1 сек):
-    //         await new Promise(resolve => setTimeout(resolve, 1000));
-    //
-    //         if (password === '12345678') { // Тимчасова перевірка для тесту
-    //             const fakeToken = 'bearer-token-xyz';
-    //
-    //             // Зберігаємо дані
-    //             token.value = fakeToken;
-    //             userEmail.value = email;
-    //             localStorage.setItem('auth_token', fakeToken);
-    //             localStorage.setItem('user_email', email);
-    //
-    //             return true; // Успіх
-    //         } else {
-    //             throw new Error('Невірний логін або пароль');
-    //         }
-    //
-    //     } catch (error: any) {
-    //         errorMessage.value = error.message || 'Помилка входу';
-    //         return false; // Невдача
-    //     } finally {
-    //         isLoading.value = false;
-    //     }
-    // };
-
     const login = async (email: string, password: string) => {
         isLoading.value = true;
         errorMessage.value = null;
@@ -58,7 +28,6 @@ export const useAuthStore = defineStore('auth', () => {
             return true;
         } catch (error: any) {
             if (error.response) {
-                // Отримуємо повідомлення "Incorrect username or password" з FastAPI
                 const serverMessage = error.response.data?.detail;
 
                 if (error.response.status === 400 || error.response.status === 401) {
@@ -66,11 +35,9 @@ export const useAuthStore = defineStore('auth', () => {
                 } else if (error.response.status === 422) {
                     errorMessage.value = 'Помилка формату даних (422)';
                 } else {
-                    // ВИПРАВЛЕНО: додано зворотні лапки ``
                     errorMessage.value = `Помилка сервера: ${error.response.status}`;
                 }
             } else {
-                // Це спрацьовує при ERR_CONNECTION_REFUSED
                 errorMessage.value = 'Сервер недоступний. Перевірте IP адресу в конфігурації.';
             }
             return false;

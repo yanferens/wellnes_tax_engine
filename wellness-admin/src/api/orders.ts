@@ -9,33 +9,18 @@ const apiClient = axios.create({
 });
 
 // INTERCEPTOR
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-        if (!config.headers) {
-            // @ts-ignore
-            config.headers = {};
+apiClient.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response && error.response.status === 401) {
+            localStorage.removeItem('auth_token');
+            localStorage.removeItem('user_email');
+            window.location.href = '/login';
+            return new Promise(() => {});
         }
-        config.headers.Authorization = `Bearer ${token}`;
+        return Promise.reject(error);
     }
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-});
-
-// INTERCEPTOR
-apiClient.interceptors.request.use((config: InternalAxiosRequestConfig) => {
-    const token = localStorage.getItem('auth_token');
-    if (token) {
-        if (!config.headers) {
-            config.headers = {} as any;
-        }
-        config.headers.Authorization = 'Bearer ${token}';
-    }
-    return config;
-}, (error) => {
-    return Promise.reject(error);
-});
+);
 
 // Interface for GET request parameters (pagination and filters)
 export interface FetchOrdersParams {
