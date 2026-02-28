@@ -1,6 +1,9 @@
 services:
   db:
     image: postgis/postgis:15-3.5
+    build:
+      context: .
+      dockerfile: Dockerfile.db
     container_name: tax_db
     environment:
       - POSTGRES_USER=${DB_USER}
@@ -11,6 +14,7 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./geo_data:/geo_data
+      - ./init-db.sh:/docker-entrypoint-initdb.d/init-db.sh:ro
 
   frontend:
     build:
@@ -30,6 +34,7 @@ services:
   api_gateway:
     build: ./api_gateway_python
     container_name: tax_api
+    restart: always
     depends_on:
       - db
       - redis
