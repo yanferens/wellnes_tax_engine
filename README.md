@@ -10,7 +10,7 @@
 
 ## 🌐 Live Deployment & Demo
 The application has been deployed and is ready for testing.
-* **URL:** [http://134.122.82.46:5173](https://134.122.82.46:5173)
+* **URL:** [http://134.122.82.46:5173](http://134.122.82.46:5173)
 * **Admin Credentials**:
     * **Login:** `admin@gmail.com`
     * **Password:** `admin`
