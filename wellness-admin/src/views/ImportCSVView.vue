@@ -171,6 +171,14 @@ p{
   box-shadow: 0 8px 15px rgba(50, 213, 113, 0.4);
   background: #28c063;
 }
+.upload-btn:disabled{
+  cursor: not-allowed;
+  box-shadow: 0 8px 15px rgba(50, 213, 113, 0.4);
+  background: #28c063;
+}
+.upload-btn:disabled:after{
+  display: none;
+}
 @keyframes shine {
   0% { left: -150%; opacity: 0; }
   10% { opacity: 1; }

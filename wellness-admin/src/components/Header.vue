@@ -96,6 +96,7 @@ onUnmounted(() => {
       justify-content: space-between;
       align-items: center;
       padding: 18px 0;
+      column-gap: 0;
     }
   }
 </style>

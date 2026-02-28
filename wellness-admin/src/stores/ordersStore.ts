@@ -55,15 +55,16 @@ export const useOrdersStore = defineStore('orders', {
         },
 
         // manual order creation
-        async createOrder(orderData: OrderInput) {
+        async createOrder(orderData: OrderInput): Promise<any> {
             this.isLoading = true;
             this.errorMessage = null;
             try {
-                await ordersService.createOrder(orderData);
+                const response = await ordersService.createOrder(orderData);
 
                 this.currentPage = 1;
                 await this.fetchOrders();
 
+                return response;
             } catch (error) {
                 this.errorMessage = 'Помилка під час створення замовлення';
                 console.error(error);

@@ -13,36 +13,6 @@ export const useAuthStore = defineStore('auth', () => {
     const isAuthenticated = computed(() => !!token.value);
 
     // actions
-    // const login = async (email: string, password: string) => {
-    //     isLoading.value = true;
-    //     errorMessage.value = null;
-    //
-    //     try {
-    //         // ІМІТАЦІЯ ЗАПИТУ (затримка 1 сек):
-    //         await new Promise(resolve => setTimeout(resolve, 1000));
-    //
-    //         if (password === '12345678') { // Тимчасова перевірка для тесту
-    //             const fakeToken = 'bearer-token-xyz';
-    //
-    //             // Зберігаємо дані
-    //             token.value = fakeToken;
-    //             userEmail.value = email;
-    //             localStorage.setItem('auth_token', fakeToken);
-    //             localStorage.setItem('user_email', email);
-    //
-    //             return true; // Успіх
-    //         } else {
-    //             throw new Error('Невірний логін або пароль');
-    //         }
-    //
-    //     } catch (error: any) {
-    //         errorMessage.value = error.message || 'Помилка входу';
-    //         return false; // Невдача
-    //     } finally {
-    //         isLoading.value = false;
-    //     }
-    // };
-
     const login = async (email: string, password: string) => {
         isLoading.value = true;
         errorMessage.value = null;
@@ -60,17 +30,15 @@ export const useAuthStore = defineStore('auth', () => {
             if (error.response) {
                 const serverMessage = error.response.data?.detail;
 
-                if (error.response.status === 400) {
-                    errorMessage.value = serverMessage || 'Невірні дані для входу';
-                } else if (error.response.status === 401) {
+                if (error.response.status === 400 || error.response.status === 401) {
                     errorMessage.value = serverMessage || 'Невірний логін або пароль';
                 } else if (error.response.status === 422) {
-                    errorMessage.value = serverMessage || 'Помилка формату даних';
+                    errorMessage.value = 'Помилка формату даних (422)';
                 } else {
                     errorMessage.value = `Помилка сервера: ${error.response.status}`;
                 }
             } else {
-                errorMessage.value = 'Помилка з\'єднання з сервером';
+                errorMessage.value = 'Сервер недоступний. Перевірте IP адресу в конфігурації.';
             }
             return false;
         } finally {

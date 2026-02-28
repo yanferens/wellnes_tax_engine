@@ -36,42 +36,34 @@ const isHighlighted = (item: any) => {
   const search = store.filters.search;
   if (!search) return false;
 
-  const searchLower = search.toLowerCase();
+  const parts = search.toLowerCase().split(/[\s,]+/).filter(Boolean);
 
-  const parts = searchLower.split(',')
-      .map((p: string) => p.trim())
-      .filter((p: string) => p.length > 0);
+  if (parts.length === 0) return false;
+
+  const id = String(item.id).toLowerCase();
+  const lat = String(item.latitude);
+  const lon = String(item.longitude);
 
   if (parts.length === 3) {
     const [sId, sLat, sLon] = parts;
-    const matchesId = String(item.id).toLowerCase().includes(sId);
-    const matchesLat = String(item.latitude).startsWith(sLat);
-    const matchesLon = String(item.longitude).startsWith(sLon);
-    return matchesId && matchesLat && matchesLon;
+    return id.includes(sId) && lat.startsWith(sLat) && lon.startsWith(sLon);
   }
 
   if (parts.length === 2) {
     const [p1, p2] = parts;
-
-    const isLatLon = String(item.latitude).startsWith(p1) &&
-        String(item.longitude).startsWith(p2);
-
-    const isIdLat = String(item.id).toLowerCase().includes(p1) &&
-        String(item.latitude).startsWith(p2);
+    const isLatLon = lat.startsWith(p1) && lon.startsWith(p2);
+    const isIdLat = id.includes(p1) && lat.startsWith(p2);
 
     return isLatLon || isIdLat;
   }
 
   if (parts.length === 1) {
-    const part = parts[0];
-
-    return String(item.id).toLowerCase().includes(part) ||
-        String(item.latitude).includes(part) ||
-        String(item.longitude).includes(part);
+    const [p] = parts;
+    return id.includes(p) || lat.includes(p) || lon.includes(p);
   }
 
   return false;
-}
+};
 
 const columns = [
   { key: 'id', label: 'ID' },
