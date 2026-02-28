@@ -45,7 +45,7 @@ Ensure your .env file contains the following default values (optimized for the D
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=tax_db
-DATABASE_URL=postgres://postgres:postgres@db:5432/tax_db?sslmode=disable
+DATABASE_URL=postgresql://postgres:postgres@db:5432/tax_db?sslmode=disable
 REDIS_URL=redis:6379
 JWT_SECRET=your_super_secret_key
 ```
