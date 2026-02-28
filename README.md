@@ -33,7 +33,7 @@ Follow these steps to run the application locally.
 ### 1. Clone the repository
 ```bash
 git clone https://github.com/yanferens/wellnes_tax_engine.git
-cd https://github.com/yanferens/wellnes_tax_engine.git
+cd wellnes_tax_engine
 ```
 ### 2. Configure Environment Variables
 The project uses a .env file to manage database connections, secrets, and service URLs. A template is provided as .env.example.
