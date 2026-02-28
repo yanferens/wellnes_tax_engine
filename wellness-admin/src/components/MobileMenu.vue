@@ -87,6 +87,7 @@ onUnmounted(() => {
 
 <style scoped>
 .toggle_menu {
+  flex-shrink: 0;
   width: 32px;
   height: 32px;
   z-index: 110;
