@@ -42,12 +42,13 @@ cp .env.example .env
 ```
 Ensure your .env file contains the following default values (optimized for the Docker Compose network):
 ```bash
-POSTGRES_USER=postgres
-POSTGRES_PASSWORD=postgres
-POSTGRES_DB=tax_db
-DATABASE_URL=postgresql://postgres:postgres@db:5432/tax_db?sslmode=disable
-REDIS_URL=redis:6379
-JWT_SECRET=your_super_secret_key
+DB_USER=postgres
+DB_PASSWORD=secretpassword
+DB_NAME=tax_db
+DATABASE_URL=postgresql://postgres:secretpassword@db:5432/tax_db
+REDIS_URL=redis://redis:6379/0
+SECRET_KEY=super_secret_hackathon_key_2026
+REDIS_ADDR=redis:6379
 ```
 ### 3. Launch with Docker Compose
 The entire infrastructure is fully containerized. You can launch all services (API, Go Worker, Database, Redis, and Frontend) with a single command:
