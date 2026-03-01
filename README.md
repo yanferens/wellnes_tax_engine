@@ -55,3 +55,5 @@ The entire infrastructure is fully containerized. You can launch all services (A
 ```bash
 docker compose up -d --build
 ```
+[!IMPORTANT]
+Windows Users: If you encounter a bad interpreter: No such file or directory error when the database starts, ensure that the init-db.sh file uses LF (Unix) line endings instead of CRLF (Windows). You can change this in your IDE (e.g., GoLand, VS Code) status bar or by using the dos2unix init-db.sh command.
